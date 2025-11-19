@@ -3,6 +3,7 @@
   "%Name":"obj_light",
   "eventList":[
     {"$GMEvent":"v1","%Name":"","collisionObjectId":null,"eventNum":0,"eventType":0,"isDnD":false,"name":"","resourceType":"GMEvent","resourceVersion":"2.0",},
+    {"$GMEvent":"v1","%Name":"","collisionObjectId":null,"eventNum":0,"eventType":3,"isDnD":false,"name":"","resourceType":"GMEvent","resourceVersion":"2.0",},
   ],
   "managed":true,
   "name":"obj_light",
@@ -29,6 +30,7 @@
     {"$GMObjectProperty":"v2","%Name":"my_color","filters":[],"listItems":[],"multiselect":false,"name":"my_color","rangeEnabled":false,"rangeMax":10.0,"rangeMin":0.0,"resourceType":"GMObjectProperty","resourceVersion":"2.0","value":"$FF0AB1FF","varType":7,},
     {"$GMObjectProperty":"v2","%Name":"radius","filters":[],"listItems":[],"multiselect":false,"name":"radius","rangeEnabled":false,"rangeMax":10.0,"rangeMin":0.0,"resourceType":"GMObjectProperty","resourceVersion":"2.0","value":"350","varType":0,},
     {"$GMObjectProperty":"v2","%Name":"intensity","filters":[],"listItems":[],"multiselect":false,"name":"intensity","rangeEnabled":true,"rangeMax":3.0,"rangeMin":0.5,"resourceType":"GMObjectProperty","resourceVersion":"2.0","value":"1","varType":0,},
+    {"$GMObjectProperty":"v2","%Name":"flicker_enabled","filters":[],"listItems":[],"multiselect":false,"name":"flicker_enabled","rangeEnabled":false,"rangeMax":10.0,"rangeMin":0.0,"resourceType":"GMObjectProperty","resourceVersion":"2.0","value":"True","varType":3,},
   ],
   "resourceType":"GMObject",
   "resourceVersion":"2.0",
