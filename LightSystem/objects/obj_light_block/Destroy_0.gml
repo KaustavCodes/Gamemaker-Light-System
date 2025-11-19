@@ -1,0 +1,1 @@
+if (points != -1) ds_list_destroy(points);

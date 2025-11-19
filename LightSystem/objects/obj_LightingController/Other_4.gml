@@ -1,0 +1,1 @@
+rebuild_vb = true;  // Trigger initial build
