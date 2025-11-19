@@ -28,6 +28,7 @@
     {"id":{"name":"obj_light_block","path":"objects/obj_light_block/obj_light_block.yy",},},
     {"id":{"name":"obj_light","path":"objects/obj_light/obj_light.yy",},},
     {"id":{"name":"obj_LightingController","path":"objects/obj_LightingController/obj_LightingController.yy",},},
+    {"id":{"name":"obj_mouse_light","path":"objects/obj_mouse_light/obj_mouse_light.yy",},},
     {"id":{"name":"Room1","path":"rooms/Room1/Room1.yy",},},
     {"id":{"name":"Quad","path":"scripts/Quad/Quad.yy",},},
     {"id":{"name":"shd_light","path":"shaders/shd_light/shd_light.yy",},},
