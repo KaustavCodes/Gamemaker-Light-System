@@ -6,7 +6,7 @@
   "name":"Quad",
   "parent":{
     "name":"Scripts",
-    "path":"folders/Scripts.yy",
+    "path":"folders/LightingSystem/Scripts.yy",
   },
   "resourceType":"GMScript",
   "resourceVersion":"2.0",
