@@ -1,4 +1,4 @@
-shape = "rect";  // "rect" (default), "circle", or "polygon"
+//shape = "rect";  // "rect" (default), "circle", or "polygon"
 
 // Rect-specific
 width = sprite_width;   // Auto if sprite; or set manually
