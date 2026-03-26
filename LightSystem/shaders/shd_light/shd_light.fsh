@@ -24,16 +24,19 @@ void main() {
 
         float outer_cos = cos(radians(u_cone_angle));
 
-        // Determine the inner bright-zone edge:
-        //   cone_inner_angle > 0  → user explicitly set a flat-top beam width; use it directly.
-        //   cone_inner_angle == 0 → fall back to softness-derived inner edge (original behaviour).
+        // Determine the inner bright-zone edge (the start of the falloff gradient):
+        //   cone_inner_angle > 0  → explicit degree override; use it directly.
+        //   cone_inner_angle == 0 → derive from cone_softness:
+        //       cone_softness 0.0 → inner = 0° → full gradient (pointy look)
+        //       cone_softness 0.7 → inner = 70% of cone_angle → wide flat beam
+        //       cone_softness 1.0 → inner = cone_angle → entire cone flat (hard cut)
+        //       cone_softness > 1 → clamped to 1.0 → same as 1.0 (full flat beam)
         float inner_deg = (u_cone_inner_angle > 0.001)
             ? u_cone_inner_angle
-            : u_cone_angle * (1.0 - clamp(u_cone_softness, 0.0, 0.999));
+            : u_cone_angle * clamp(u_cone_softness, 0.0, 1.0);
         float inner_cos = cos(radians(inner_deg));
 
-        // Guard: inner must represent a strictly narrower angle than outer so
-        // smoothstep doesn't invert (inner_cos must be > outer_cos).
+        // Guard: inner_cos must be strictly greater than outer_cos so smoothstep has direction.
         inner_cos = max(inner_cos, outer_cos + 0.0001);
 
         // Smooth from 0 at the outer edge to 1 inside the bright zone.
