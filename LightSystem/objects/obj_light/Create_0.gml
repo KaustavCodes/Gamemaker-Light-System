@@ -5,10 +5,10 @@
 
 // Spotlight settings — all per-instance, safe defaults let point lights work without changes.
 // Override any of these on a specific instance to turn it into a spotlight.
-light_type       = "point";  // "point" = 360° radial  |  "spot" = directional cone
-light_direction  = 0;        // Spotlight aim in degrees (0 = right, 90 = down in GM coords)
+light_type       = "spot";  // "point" = 360° radial  |  "spot" = directional cone
+light_direction  = 270;        // Spotlight aim in degrees (0 = right, 90 = down in GM coords)
 cone_angle       = 45;       // Spotlight outer half-angle in degrees (total arc = cone_angle*2)
-cone_inner_angle = 0;        // Beam width: 0 = sharp tip, >0 = flat bright zone half-angle
+cone_inner_angle = 20;        // Beam width: 0 = sharp tip, >0 = flat bright zone half-angle
                               //   e.g. 20 → full brightness inside 20°, falloff 20°→45°, dark beyond
 cone_softness    = 0.15;     // Outer-edge softness: 0 = hard cut at cone_angle, 1 = soft fringe
 

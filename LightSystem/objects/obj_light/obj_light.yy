@@ -38,6 +38,7 @@
     {"$GMObjectProperty":"v2","%Name":"light_direction","filters":[],"listItems":[],"multiselect":false,"name":"light_direction","rangeEnabled":false,"rangeMax":360.0,"rangeMin":0.0,"resourceType":"GMObjectProperty","resourceVersion":"2.0","value":"0","varType":1,},
     {"$GMObjectProperty":"v2","%Name":"cone_angle","filters":[],"listItems":[],"multiselect":false,"name":"cone_angle","rangeEnabled":false,"rangeMax":360.0,"rangeMin":0.0,"resourceType":"GMObjectProperty","resourceVersion":"2.0","value":"45","varType":1,},
     {"$GMObjectProperty":"v2","%Name":"cone_softness","filters":[],"listItems":[],"multiselect":false,"name":"cone_softness","rangeEnabled":false,"rangeMax":1.0,"rangeMin":0.0,"resourceType":"GMObjectProperty","resourceVersion":"2.0","value":"0.2","varType":0,},
+    {"$GMObjectProperty":"v2","%Name":"cone_inner_angle","filters":[],"listItems":[],"multiselect":false,"name":"cone_inner_angle","rangeEnabled":false,"rangeMax":10.0,"rangeMin":0.0,"resourceType":"GMObjectProperty","resourceVersion":"2.0","value":"250","varType":0,},
   ],
   "resourceType":"GMObject",
   "resourceVersion":"2.0",
