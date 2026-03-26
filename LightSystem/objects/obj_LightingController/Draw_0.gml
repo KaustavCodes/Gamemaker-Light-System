@@ -30,22 +30,36 @@ draw_clear(make_color_rgb(_clear_r * 255, _clear_g * 255, _clear_b * 255));
 
 // --- LIGHTING PASS ---
 // Cache uniform handles and controller refs as locals for use inside with() block.
-var _u_pos          = u_pos;
-var _u_pos2         = u_pos2;
-var _u_z            = u_z;
-var _u_z2           = u_z2;
-var _u_color        = u_color;
-var _u_radius       = u_radius;
-var _u_intensity    = u_intensity;
-var _u_light_type   = u_light_type;
-var _u_direction    = u_direction;
-var _u_cone_angle   = u_cone_angle;
-var _u_cone_soft    = u_cone_softness;
-var _vb             = vb;
+var _u_pos           = u_pos;
+var _u_pos2          = u_pos2;
+var _u_z             = u_z;
+var _u_z2            = u_z2;
+var _u_color         = u_color;
+var _u_radius        = u_radius;
+var _u_intensity     = u_intensity;
+var _u_light_type    = u_light_type;
+var _u_direction     = u_direction;
+var _u_cone_angle    = u_cone_angle;
+var _u_cone_inner    = u_cone_inner_angle;
+var _u_cone_soft     = u_cone_softness;
+var _vb              = vb;
 
 gpu_set_ztestenable(true);
 gpu_set_zwriteenable(true);
 gpu_set_cullmode(cull_noculling);
+
+// Reset the depth buffer each frame so that moved blockers don't leave phantom shadows.
+// Write a "far" depth (object-space z = +1.0) everywhere, then shadows (z = -0.5) and
+// light rects (z = 0) can both overwrite it correctly via LEQUAL.
+gpu_set_blendmode_ext(bm_zero, bm_zero);  // no colour output — depth writes only
+gpu_set_ztestenable(false);               // always write (ignore stored depth)
+shader_set(shd_shadow);
+shader_set_uniform_f(_u_pos2, 0, 0);  // no extrusion needed (verts have z=0)
+shader_set_uniform_f(_u_z2, 1.5);     // object z = 1.5 - 0.5 = 1.0  (far reference)
+vertex_submit(depth_clear_vb, pr_trianglelist, -1);
+shader_reset();
+gpu_set_blendmode(bm_normal);
+gpu_set_ztestenable(true);
 
 var _z     = 0;
 var _cam_x = vx + vw * 0.5;
@@ -77,6 +91,7 @@ with (obj_light) {
     shader_set_uniform_f(_u_light_type, light_type == "spot" ? 1.0 : 0.0);
     shader_set_uniform_f(_u_direction, dcos(light_direction), -dsin(light_direction));
     shader_set_uniform_f(_u_cone_angle, cone_angle);
+    shader_set_uniform_f(_u_cone_inner, cone_inner_angle);
     shader_set_uniform_f(_u_cone_soft, cone_softness);
 
     draw_rectangle(vx, vy, vx + vw, vy + vh, false);

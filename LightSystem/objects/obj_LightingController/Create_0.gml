@@ -13,7 +13,8 @@ u_radius      = shader_get_uniform(shd_light, "u_radius");
 u_intensity   = shader_get_uniform(shd_light, "u_intensity");
 u_light_type  = shader_get_uniform(shd_light, "u_light_type");
 u_direction   = shader_get_uniform(shd_light, "u_direction");
-u_cone_angle  = shader_get_uniform(shd_light, "u_cone_angle");
+u_cone_angle    = shader_get_uniform(shd_light, "u_cone_angle");
+u_cone_inner_angle = shader_get_uniform(shd_light, "u_cone_inner_angle");
 u_cone_softness = shader_get_uniform(shd_light, "u_cone_softness");
 
 // Shader uniforms — shd_shadow
@@ -43,3 +44,19 @@ soft_shadow_radius  = 3.0;    // Blur kernel size in pixels
 light_surface  = -1;
 blur_surface_h = -1;
 blur_surface_v = -1;
+
+// Depth-clear buffer: a frozen huge quad used to reset the depth buffer each frame so that
+// blockers which move don't leave phantom shadows behind.  Vertices sit at z=0 (not extruded
+// by the shadow shader), and we pass u_z = 1.5 → object-space z = 1.0 (a "far" value that
+// any real shadow at z = -0.5 will overwrite via LEQUAL).
+depth_clear_vb = vertex_create_buffer();
+vertex_begin(depth_clear_vb, vf);
+var _r = 200000;  // large enough to cover any possible camera position
+vertex_position_3d(depth_clear_vb, -_r, -_r, 0);
+vertex_position_3d(depth_clear_vb,  _r, -_r, 0);
+vertex_position_3d(depth_clear_vb,  _r,  _r, 0);
+vertex_position_3d(depth_clear_vb, -_r, -_r, 0);
+vertex_position_3d(depth_clear_vb,  _r,  _r, 0);
+vertex_position_3d(depth_clear_vb, -_r,  _r, 0);
+vertex_end(depth_clear_vb);
+vertex_freeze(depth_clear_vb);

@@ -7,3 +7,6 @@ if (vertex_format_exists(vf)) {
 if (vb != -1) {
     vertex_delete_buffer(vb);
 }
+if (depth_clear_vb != -1) {
+    vertex_delete_buffer(depth_clear_vb);
+}
