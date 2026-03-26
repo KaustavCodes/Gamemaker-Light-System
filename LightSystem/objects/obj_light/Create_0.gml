@@ -4,10 +4,14 @@
 //intensity  = 1.0;         // 0.5 = dimmer, 2.0 = brighter
 
 // Light type (instance setting)
-light_type    = "point";  // "point" = 360-degree radial, "spot" = directional cone
-light_direction = 0;      // Spotlight direction in degrees (0=right, 90=up in GM coords)
-cone_angle    = 45;       // Spotlight half-angle in degrees (total arc = cone_angle * 2)
-cone_softness = 0.2;      // Soft edge: 0 = hard cut, 1 = fully gradual falloff
+//light_type    = "point";  // "point" = 360-degree radial, "spot" = directional cone
+//light_direction = 0;      // Spotlight direction in degrees (0=right, 90=up in GM coords)
+//cone_angle    = 45;       // Spotlight half-angle in degrees (total arc = cone_angle * 2)
+//cone_softness = 0.2;      // Soft edge: 0 = hard cut, 1 = fully gradual falloff
+//
+//
+////Overrides
+//light_type = "spot";
 
 // Flicker & Wobble setup (randomized per light)
 //flicker_enabled = true;  // Toggle to enable/disable
