@@ -3,6 +3,7 @@ uniform vec2  u_pos;
 uniform vec3  u_color;
 uniform float u_radius;
 uniform float u_intensity;
+uniform float u_attenuation;         // Falloff exponent: 1.0=linear, 2.0=quadratic (default), 3.0=cubic
 uniform float u_light_type;        // 0.0 = point (360°), 1.0 = spotlight cone
 uniform vec2  u_direction;         // Normalised direction vector for spotlight
 uniform float u_cone_angle;        // Spotlight outer half-angle in degrees
@@ -37,7 +38,7 @@ void main() {
         // Radial falloff measured from the effective (closest source) point so the
         // flat-top region is uniformly bright at any given depth along the beam.
         float eff_falloff = max(0.0, 1.0 - eff_dist / u_radius);
-        str = pow(eff_falloff, 2.0) * u_intensity;
+        str = pow(eff_falloff, u_attenuation) * u_intensity;
 
         // Angular attenuation relative to the effective source point.
         vec2  to_pixel = eff_dis / max(eff_dist, EPSILON);
@@ -53,9 +54,9 @@ void main() {
         float cone_factor = smoothstep(outer_cos, inner_cos, dot_val);
         str *= cone_factor;
     } else {
-        // Point light: standard quadratic radial falloff.
+        // Point light: customisable radial falloff via u_attenuation exponent.
         float falloff = max(0.0, 1.0 - dist / u_radius);
-        str = pow(falloff, 2.0) * u_intensity;
+        str = pow(falloff, u_attenuation) * u_intensity;
     }
 
     gl_FragColor = vec4(u_color * str, 1.0);

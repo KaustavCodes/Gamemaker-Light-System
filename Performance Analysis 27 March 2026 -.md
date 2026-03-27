@@ -556,16 +556,16 @@ Based on static analysis (no runtime profiling available):
 
 ## 9. Quick-Reference Priority Checklist
 
-- [ ] 🔴 **P1** — Clip `draw_rectangle` to light bounding box (fragment cost, 60%+ gain)
-- [ ] 🔴 **P2** — Dirty-flag VB rebuild (CPU/GC cost, critical for dynamic scenes)
-- [ ] 🟠 **P3** — Precompute Gaussian blur weights on CPU, remove `exp()` from shader
-- [ ] 🟠 **P4** — Cache `obj_light` colour array, no per-frame allocation
-- [ ] 🟠 **P5** — Surface dimension validation on window resize
-- [ ] 🟡 **P6** — Squared-distance light culling (remove `sqrt()`)
-- [ ] 🟡 **P7** — Migrate polygon `ds_list` to native array
+- [x] 🔴 **P1** — Clip `draw_rectangle` to light bounding box (fragment cost, 60%+ gain)
+- [x] 🔴 **P2** — Dirty-flag VB rebuild (CPU/GC cost, critical for dynamic scenes)
+- [x] 🟠 **P3** — Precompute Gaussian blur weights on CPU, remove `exp()` from shader
+- [x] 🟠 **P4** — Cache `obj_light` colour array, no per-frame allocation
+- [x] 🟠 **P5** — Surface dimension validation on window resize
+- [x] 🟡 **P6** — Squared-distance light culling (remove `sqrt()`)
+- [x] 🟡 **P7** — Migrate polygon `ds_list` to native array
 - [ ] 🟢 **P8** — Normal map support (road-map feature, major visual uplift)
 - [ ] 🟢 **P9** — Per-light shadow sub-buffer / spatial partitioning (scalability beyond 15 lights)
-- [ ] 🟢 **P10** — Adjustable attenuation curve (linear / quadratic / custom exponent per light)
+- [x] 🟢 **P10** — Adjustable attenuation curve (linear / quadratic / custom exponent per light)
 
 ---
 
