@@ -8,10 +8,10 @@
 //light_type       = "point";  // "point" = 360° radial  |  "spot" = directional cone
 //light_direction  = 0;        // Spotlight aim in degrees (0 = right, 90 = down in GM coords)
 //cone_angle       = 45;       // Spotlight outer half-angle in degrees (total arc = cone_angle*2)
-//cone_inner_angle = 0;        // Explicit beam width override (degrees). 0 = use cone_softness.
-                              //   e.g. 35 → full brightness inside 35°, falloff 35°→cone_angle
-//cone_softness    = 0.7;      // Beam fill fraction (0-1+). 0 = pointy gradient, 0.7 = 70% flat
-                              //   beam, 1.0 = entire cone flat (hard cut). Values >1 treated as 1.
+//cone_inner_angle = 0;        // Flat-top beam-origin width in PIXELS. 0 = pointy single-point tip.
+                              //   e.g. 200 = 200 px wide flat origin (trapezoidal beam shape).
+//cone_softness    = 0.7;      // Edge softness 0..1. 0 = full angular gradient from centre.
+                              //   0.7 = 70% of cone is uniformly bright; 1.0 = hard cut at edge.
 
 // Flicker & Wobble setup (randomized per light)
 //flicker_enabled = true;  // Toggle to enable/disable

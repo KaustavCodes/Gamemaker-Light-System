@@ -3,45 +3,59 @@ uniform vec2  u_pos;
 uniform vec3  u_color;
 uniform float u_radius;
 uniform float u_intensity;
-uniform float u_light_type;     // 0.0 = point (360 deg), 1.0 = spotlight cone
-uniform vec2  u_direction;      // Normalized direction vector for spotlight
-uniform float u_cone_angle;     // Spotlight outer half-angle in degrees
-uniform float u_cone_inner_angle; // Beam width: 0 = sharp tip, >0 = flat bright zone half-angle
-uniform float u_cone_softness;  // Outer-edge softness: 0 = hard cut, >0 = soft fringe
+uniform float u_light_type;        // 0.0 = point (360°), 1.0 = spotlight cone
+uniform vec2  u_direction;         // Normalised direction vector for spotlight
+uniform float u_cone_angle;        // Spotlight outer half-angle in degrees
+uniform float u_cone_inner_angle;  // Flat-top source width in pixels (0 = pointy tip)
+uniform float u_cone_softness;     // Edge softness 0..1 (0 = full gradient, 1 = hard flat cut)
+
+const float EPSILON = 0.001;  // Prevent division by zero at the light source centre
 
 void main() {
     vec2  dis  = pos - u_pos;
     float dist = length(dis);
-    float ndc  = dist / u_radius;
-    float falloff = max(0.0, 1.0 - ndc);
-    float str = pow(falloff, 2.0) * u_intensity;  // Quadratic: smooth fade
 
     // Spotlight cone attenuation (only when u_light_type == 1).
+    float str;
     if (u_light_type > 0.5) {
-        const float EPSILON = 0.001;  // Prevent division by zero at the light source center
-        vec2  to_pixel  = dis / max(dist, EPSILON);
-        float dot_val   = dot(to_pixel, normalize(u_direction));
+        vec2  dir_norm = normalize(u_direction);
+        vec2  perp_dir = vec2(-dir_norm.y, dir_norm.x);  // perpendicular to beam direction
+
+        // ---- Flat-top source segment ----
+        // The virtual source is a line segment of half-width (u_cone_inner_angle / 2) pixels,
+        // centred at u_pos and oriented perpendicular to the beam.
+        // u_cone_inner_angle == 0  →  single-point tip (classic pointy spotlight).
+        // u_cone_inner_angle == 200 →  200 px wide flat origin (trapezoidal beam).
+        float half_src_w = u_cone_inner_angle * 0.5;
+        float across     = dot(dis, perp_dir);
+        float clamped    = clamp(across, -half_src_w, half_src_w);
+
+        // Displacement from the closest point on the source segment.
+        vec2  eff_dis  = dis - clamped * perp_dir;
+        float eff_dist = length(eff_dis);
+
+        // Radial falloff measured from the effective (closest source) point so the
+        // flat-top region is uniformly bright at any given depth along the beam.
+        float eff_falloff = max(0.0, 1.0 - eff_dist / u_radius);
+        str = pow(eff_falloff, 2.0) * u_intensity;
+
+        // Angular attenuation relative to the effective source point.
+        vec2  to_pixel = eff_dis / max(eff_dist, EPSILON);
+        float dot_val  = dot(to_pixel, dir_norm);
 
         float outer_cos = cos(radians(u_cone_angle));
-
-        // Determine the inner bright-zone edge (the start of the falloff gradient):
-        //   cone_inner_angle > 0  → explicit degree override; use it directly.
-        //   cone_inner_angle == 0 → derive from cone_softness:
-        //       cone_softness 0.0 → inner = 0° → full gradient (pointy look)
-        //       cone_softness 0.7 → inner = 70% of cone_angle → wide flat beam
-        //       cone_softness 1.0 → inner = cone_angle → entire cone flat (hard cut)
-        //       cone_softness > 1 → clamped to 1.0 → same as 1.0 (full flat beam)
-        float inner_deg = (u_cone_inner_angle > 0.001)
-            ? u_cone_inner_angle
-            : u_cone_angle * clamp(u_cone_softness, 0.0, 1.0);
-        float inner_cos = cos(radians(inner_deg));
-
-        // Guard: inner_cos must be strictly greater than outer_cos so smoothstep has direction.
+        // cone_softness 0.0 → inner = 0° → full angular gradient from axis (gradual)
+        // cone_softness 0.7 → inner at 70% of cone_angle → large bright zone, soft edge
+        // cone_softness 1.0 → inner = cone_angle → hard cut at outer edge
+        float inner_cos = cos(radians(u_cone_angle * clamp(u_cone_softness, 0.0, 1.0)));
         inner_cos = max(inner_cos, outer_cos + 0.0001);
 
-        // Smooth from 0 at the outer edge to 1 inside the bright zone.
         float cone_factor = smoothstep(outer_cos, inner_cos, dot_val);
         str *= cone_factor;
+    } else {
+        // Point light: standard quadratic radial falloff.
+        float falloff = max(0.0, 1.0 - dist / u_radius);
+        str = pow(falloff, 2.0) * u_intensity;
     }
 
     gl_FragColor = vec4(u_color * str, 1.0);
