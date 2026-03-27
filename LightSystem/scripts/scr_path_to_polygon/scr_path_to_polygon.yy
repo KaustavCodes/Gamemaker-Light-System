@@ -1,0 +1,13 @@
+{
+  "$GMScript":"v1",
+  "%Name":"scr_path_to_polygon",
+  "isCompatibility":false,
+  "isDnD":false,
+  "name":"scr_path_to_polygon",
+  "parent":{
+    "name":"Scripts",
+    "path":"folders/LightingSystem/Scripts.yy",
+  },
+  "resourceType":"GMScript",
+  "resourceVersion":"2.0",
+}

@@ -2,7 +2,7 @@
   "$GMProject":"v1",
   "%Name":"LightSystem",
   "AudioGroups":[
-    {"$GMAudioGroup":"","%Name":"audiogroup_default","name":"audiogroup_default","resourceType":"GMAudioGroup","resourceVersion":"2.0","targets":-1,},
+    {"$GMAudioGroup":"v1","%Name":"audiogroup_default","exportDir":"","name":"audiogroup_default","resourceType":"GMAudioGroup","resourceVersion":"2.0","targets":-1,},
   ],
   "configs":{
     "children":[],
@@ -33,6 +33,8 @@
     {"id":{"name":"rmLightDemo","path":"rooms/rmLightDemo/rmLightDemo.yy",},},
     {"id":{"name":"Room1","path":"rooms/Room1/Room1.yy",},},
     {"id":{"name":"Quad","path":"scripts/Quad/Quad.yy",},},
+    {"id":{"name":"scr_path_to_polygon","path":"scripts/scr_path_to_polygon/scr_path_to_polygon.yy",},},
+    {"id":{"name":"shd_blur","path":"shaders/shd_blur/shd_blur.yy",},},
     {"id":{"name":"shd_light","path":"shaders/shd_light/shd_light.yy",},},
     {"id":{"name":"shd_shadow","path":"shaders/shd_shadow/shd_shadow.yy",},},
     {"id":{"name":"Background_01","path":"sprites/Background_01/Background_01.yy",},},
