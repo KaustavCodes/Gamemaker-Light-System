@@ -84,17 +84,24 @@ shader_reset();
 gpu_set_blendmode(bm_normal);
 gpu_set_ztestenable(true);
 
-var _z     = 0;
-var _cam_x = vx + vw * 0.5;
-var _cam_y = vy + vh * 0.5;
+var _z = 0;
 
 with (obj_light) {
-    // Frustum culling: skip lights whose radius doesn't reach the view.
-    // Uses squared-distance comparison to avoid the sqrt() inside point_distance().
-    var _dx     = x - _cam_x;
-    var _dy     = y - _cam_y;
-    var _cull_r = radius * 1.5 + vw * 0.5;
-    if (_dx * _dx + _dy * _dy > _cull_r * _cull_r) continue;
+    // Skip lights that have been manually disabled.
+    if (!active) continue;
+
+    // Exact viewport-AABB vs light-circle cull.
+    // Find the nearest point on the view rectangle to the light position, then check
+    // whether the distance from the light centre to that nearest point is within the
+    // light's radius.  If it isn't, the light circle doesn't touch the view at all —
+    // neither the illumination rect nor any shadow from it would be visible.
+    // This replaces the previous approximate circle-vs-circle test and correctly
+    // handles both wide and tall viewports with no arbitrary safety multiplier.
+    var _nx = clamp(x, vx, vx + vw);
+    var _ny = clamp(y, vy, vy + vh);
+    var _dx = x - _nx;
+    var _dy = y - _ny;
+    if (_dx * _dx + _dy * _dy > radius * radius) continue;
 
     // --- P9: Draw Shadows — per-blocker, with light-distance culling ---
     // Instead of submitting one monolithic buffer for every light, iterate each

@@ -24,7 +24,7 @@ Features
     
 *   Global ambient darkness control.
     
-*   Light culling for optimization.
+*   Exact AABB-circle viewport culling — lights whose illumination circle doesn't touch the camera view are skipped entirely (no shadow pass, no fragment work). Works correctly for any viewport aspect ratio.
     
 *   Extensible for effects like flickering.
 
@@ -136,6 +136,8 @@ Customization Tips
     Adjust light height above the plane with `my_light.light_z` (default 200).
 
 *   **Per-Light Shadow Culling (P9)**: Enabled automatically — each blocker maintains its own frozen vertex buffer and the shadow pass skips blockers outside each light's radius.  No configuration needed.
+
+*   **Disabling Individual Lights**: Set `my_light.active = false;` to instantly disable a light without destroying it.  The light's state (color, flicker timers, easing targets) is preserved while it is off.  Re-enable with `my_light.active = true;`.
     
 
 Troubleshooting

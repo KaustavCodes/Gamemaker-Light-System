@@ -207,32 +207,44 @@ Alternatively, use three separate `shader_set_uniform_f` calls — no allocation
 
 ---
 
-### 2.7 Frustum Culling Is Conservative and Approximate ⚠️
+### 2.7 Frustum Culling — Light Cull Updated to Exact AABB-Circle Test ✅
 
-**File:** `obj_LightingController/Step_0.gml`, line 31
+**File:** `obj_LightingController/Draw_0.gml`
 
-```gml
-if (x + _br < vx || x - _br > vx + vw || y + _br < vy || y - _br > vy + vh) continue;
-```
-
-And in `Draw_0.gml`, line 70:
+The original light cull used a circle-vs-circle approximation:
 
 ```gml
-if (point_distance(x, y, _cam_x, _cam_y) > radius * 1.5 + vw * 0.5) continue;
+// OLD — approximate, ignores viewport height, uses arbitrary 1.5× safety factor
+var _cull_r = radius * 1.5 + vw * 0.5;
+if (_dx * _dx + _dy * _dy > _cull_r * _cull_r) continue;
 ```
 
-**Blocker culling** uses a bounding-radius check that scales by `image_xscale`/`image_yscale` and adds `64px` padding. This is correct but involves `abs()`, `max()`, and a comparison per blocker per frame — fine for small counts.
+This had two problems:
+1. It used `vw * 0.5` as the camera's effective radius — ignoring `vh`, so lights above/below a wide viewport were kept alive longer than necessary.
+2. The `* 1.5` safety factor caused lights whose circle was well outside the view to still be processed.
 
-**Light culling** uses `point_distance()` (a `sqrt()`) every frame for every light. This can be replaced with a squared-distance comparison (no `sqrt` required):
+**Replaced with an exact AABB-circle intersection test:**
 
 ```gml
-var _dx = x - _cam_x;
-var _dy = y - _cam_y;
-var _thresh = radius * 1.5 + vw * 0.5;
-if (_dx*_dx + _dy*_dy > _thresh*_thresh) continue;
+// NEW — exact, handles any viewport aspect ratio, no arbitrary multiplier
+var _nx = clamp(x, vx, vx + vw);   // nearest x on view rect
+var _ny = clamp(y, vy, vy + vh);   // nearest y on view rect
+var _dx = x - _nx;
+var _dy = y - _ny;
+if (_dx * _dx + _dy * _dy > radius * radius) continue;
 ```
 
-> **Severity: LOW.** `point_distance()` is fast, but eliminating `sqrt()` in tight loops is good practice.
+A light is now skipped if and only if its illumination circle does not intersect the camera view rectangle. No false positives (no visible light ever skipped), and no false negatives from oversized safety factors.
+
+**Also added** a per-light `active` flag (in `obj_light/Create_0.gml`). Setting `active = false` on a light instance immediately disables it — both the shadow and draw pass skip it without the GC cost of destroy/create. Useful for light-switch mechanics, conditional lighting effects, etc.
+
+```gml
+// Instantly disable / re-enable any light at runtime:
+my_light.active = false;  // off
+my_light.active = true;   // back on
+```
+
+> **Combined impact: MEDIUM–HIGH.** Lights just outside the view edge are now correctly culled, saving shadow-pass and fragment-shader work for any scene where the camera scrolls. The `active` flag gives zero-overhead manual control.
 
 ---
 
