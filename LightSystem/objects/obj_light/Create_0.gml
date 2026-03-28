@@ -26,7 +26,7 @@ attenuation_exponent = 2.0;
 
 // Flicker & Wobble setup (randomized per light)
 //flicker_enabled = true;  // Toggle to enable/disable
-base_intensity = 0.9;
+//base_intensity = 0.9;
 flicker_min = -0.3;
 flicker_max = 0.1;
 intensity = base_intensity;
@@ -44,9 +44,11 @@ base_x = x;
 base_y = y;
 wobble_target_x = 0;
 wobble_target_y = 0;
-wobble_amp = 5;  // Max pixels shift (tune 1-4 for subtle)
+//wobble_amp = 5;  // Max pixels shift (tune 1-4 for subtle)
 
 // P8: Normal-map lighting — height of this light above the 2-D XY plane (world units).
 // Larger values produce shallower angles and gentler normal-based shading on flat surfaces.
 // Only used when obj_LightingController.normal_map_surface is set to a valid surface.
 light_z = 200.0;
+
+visible = false;

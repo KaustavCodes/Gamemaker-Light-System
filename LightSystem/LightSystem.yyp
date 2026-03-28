@@ -27,6 +27,7 @@
   "name":"LightSystem",
   "resources":[
     {"id":{"name":"obj_light_block","path":"objects/obj_light_block/obj_light_block.yy",},},
+    {"id":{"name":"obj_light_pulse","path":"objects/obj_light_pulse/obj_light_pulse.yy",},},
     {"id":{"name":"obj_light","path":"objects/obj_light/obj_light.yy",},},
     {"id":{"name":"obj_LightingController","path":"objects/obj_LightingController/obj_LightingController.yy",},},
     {"id":{"name":"obj_mouse_light","path":"objects/obj_mouse_light/obj_mouse_light.yy",},},
@@ -38,6 +39,8 @@
     {"id":{"name":"shd_light","path":"shaders/shd_light/shd_light.yy",},},
     {"id":{"name":"shd_shadow","path":"shaders/shd_shadow/shd_shadow.yy",},},
     {"id":{"name":"Background_01","path":"sprites/Background_01/Background_01.yy",},},
+    {"id":{"name":"sprite_bulb_pulse","path":"sprites/sprite_bulb_pulse/sprite_bulb_pulse.yy",},},
+    {"id":{"name":"sprite_bulb","path":"sprites/sprite_bulb/sprite_bulb.yy",},},
     {"id":{"name":"spt_blockers","path":"sprites/spt_blockers/spt_blockers.yy",},},
   ],
   "resourceType":"GMProject",

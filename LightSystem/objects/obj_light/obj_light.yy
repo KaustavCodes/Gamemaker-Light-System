@@ -39,11 +39,16 @@
     {"$GMObjectProperty":"v2","%Name":"cone_angle","filters":[],"listItems":[],"multiselect":false,"name":"cone_angle","rangeEnabled":false,"rangeMax":360.0,"rangeMin":0.0,"resourceType":"GMObjectProperty","resourceVersion":"2.0","value":"45","varType":1,},
     {"$GMObjectProperty":"v2","%Name":"cone_softness","filters":[],"listItems":[],"multiselect":false,"name":"cone_softness","rangeEnabled":false,"rangeMax":1.0,"rangeMin":0.0,"resourceType":"GMObjectProperty","resourceVersion":"2.0","value":"0.7","varType":0,},
     {"$GMObjectProperty":"v2","%Name":"spot_light_emiter_width","filters":[],"listItems":[],"multiselect":false,"name":"spot_light_emiter_width","rangeEnabled":false,"rangeMax":500.0,"rangeMin":0.0,"resourceType":"GMObjectProperty","resourceVersion":"2.0","value":"0","varType":0,},
+    {"$GMObjectProperty":"v2","%Name":"wobble_amp","filters":[],"listItems":[],"multiselect":false,"name":"wobble_amp","rangeEnabled":false,"rangeMax":10.0,"rangeMin":0.0,"resourceType":"GMObjectProperty","resourceVersion":"2.0","value":"1","varType":1,},
+    {"$GMObjectProperty":"v2","%Name":"base_intensity","filters":[],"listItems":[],"multiselect":false,"name":"base_intensity","rangeEnabled":false,"rangeMax":10.0,"rangeMin":0.0,"resourceType":"GMObjectProperty","resourceVersion":"2.0","value":"0.9","varType":0,},
   ],
   "resourceType":"GMObject",
   "resourceVersion":"2.0",
   "solid":false,
-  "spriteId":null,
+  "spriteId":{
+    "name":"sprite_bulb",
+    "path":"sprites/sprite_bulb/sprite_bulb.yy",
+  },
   "spriteMaskId":null,
   "visible":true,
 }
