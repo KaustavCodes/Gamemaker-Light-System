@@ -3,6 +3,12 @@
 //radius     = 350;         // Spread amount (pixels from center)
 //intensity  = 1.0;         // 0.5 = dimmer, 2.0 = brighter
 
+// Per-instance on/off switch.
+// Set active = false to disable a light completely (no shadow pass, no light draw).
+// This is cheaper than destroying and recreating the instance and preserves all
+// light state (color, flicker timer, easing targets) while the light is off.
+active = true;
+
 // Attenuation curve — controls how light intensity falls off with distance.
 // 1.0 = linear (gentle, wide spread), 2.0 = quadratic (default, natural),
 // 3.0 = cubic (sharp, concentrated).  Any positive value is valid.
@@ -39,3 +45,8 @@ base_y = y;
 wobble_target_x = 0;
 wobble_target_y = 0;
 wobble_amp = 5;  // Max pixels shift (tune 1-4 for subtle)
+
+// P8: Normal-map lighting — height of this light above the 2-D XY plane (world units).
+// Larger values produce shallower angles and gentler normal-based shading on flat surfaces.
+// Only used when obj_LightingController.normal_map_surface is set to a valid surface.
+light_z = 200.0;

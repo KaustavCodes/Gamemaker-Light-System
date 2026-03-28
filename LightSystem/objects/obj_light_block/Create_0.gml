@@ -19,8 +19,15 @@ points = -1;
 
 image_alpha = 0;
 
-// Dirty tracking: the controller only rebuilds the vertex buffer when at least one
-// blocker's transform has changed.  Previous-frame values are stored here.
+// P9: Per-blocker shadow vertex buffer.
+// The controller builds and freezes this VB the first time the blocker is processed and
+// rebuilds it whenever the blocker's transform changes (dirty-flagged).  The shadow pass
+// in Draw_0.gml submits only the VBs for blockers within each light's radius, eliminating
+// the cost of submitting distant blockers for every light.
+shadow_vb = -1;  // vertex_buffer_id; -1 = not yet built
+
+// Dirty tracking: the controller rebuilds this blocker's shadow_vb when the flag is set.
+// Previous-frame values are stored here for automatic change detection.
 _dirty   = true;   // start dirty so initial build always runs
 _prev_x  = x;
 _prev_y  = y;
