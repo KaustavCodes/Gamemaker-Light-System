@@ -1,145 +1,154 @@
-// Skip rebuild when the world is static and the buffer is already frozen.
-// Wrapped in a block so future Step logic added below is unaffected.
-if (!static_world || rebuild_vb) {
+// --- P9: Per-blocker shadow vertex buffer rebuild ---
+//
+// Each obj_light_block owns its own shadow_vb (frozen vertex buffer).
+// The controller rebuilds it only when the blocker's transform has changed (_dirty flag).
+// In Draw_0 the shadow pass submits only the VBs for blockers within each light's radius,
+// eliminating the cost of sending distant geometry to the GPU for every light.
 
-    var _vb = vb;
-    var vx = camera_get_view_x(view_camera[0]);
-    var vy = camera_get_view_y(view_camera[0]);
-    var vw = camera_get_view_width(view_camera[0]);
-    var vh = camera_get_view_height(view_camera[0]);
-
-    // --- P2: Dirty-flag check ------------------------------------------------
-    // Only rebuild the vertex buffer when at least one blocker's transform has
-    // changed since the last frame (or when an external rebuild_vb flag is set).
-    var _any_dirty = rebuild_vb;  // honour manual rebuild requests
-    with (obj_light_block) {
-        if (x != _prev_x || y != _prev_y
-            || image_angle  != _prev_angle
-            || image_xscale != _prev_xscale
-            || image_yscale != _prev_yscale
-            || width  != _prev_width
-            || height != _prev_height
-            || radius != _prev_radius
-            || cast_shadow != _prev_cast_shadow) {
-            _dirty = true;
-        }
-        if (_dirty) { _any_dirty = true; }
-    }
-
-    if (!_any_dirty) exit;  // nothing changed — skip the entire rebuild
-    // -------------------------------------------------------------------------
-
-    // If the buffer was frozen (static_world was true) but we now need to rebuild,
-    // delete and recreate it so vertex_begin() can write to it again.
-    if (vb_frozen) {
-        vertex_delete_buffer(_vb);
-        vb    = vertex_create_buffer();
-        _vb   = vb;
-        vb_frozen = false;
-    }
-
-    vertex_begin(_vb, vf);
-
-    with (obj_light_block) {
-        // Per-instance toggle — skip this blocker entirely if cast_shadow is false.
-        if (!cast_shadow) continue;
-
-        // Frustum culling: compute a conservative bounding radius and skip if off-screen.
-        var _bx = width  * abs(image_xscale);
-        var _by = height * abs(image_yscale);
-        var _bc = radius * max(abs(image_xscale), abs(image_yscale));
-        var _br = max(_bx, _by, _bc) + 64;
-        if (x + _br < vx || x - _br > vx + vw || y + _br < vy || y - _br > vy + vh) continue;
-
-        var px, py, num_points;
-
-        switch (shape) {
-            case "rect":
-                // Oriented Bounding Box: rotate and scale corners from the object's origin.
-                var hw  = width  * abs(image_xscale) * 0.5;
-                var hh  = height * abs(image_yscale) * 0.5;
-                var ang = image_angle;
-                var lx4 = [-hw,  hw, hw, -hw];
-                var ly4 = [-hh, -hh, hh,  hh];
-                px = array_create(4);
-                py = array_create(4);
-                for (var i = 0; i < 4; i++) {
-                    px[i] = x + lx4[i] * dcos(ang) + ly4[i] * dsin(ang);
-                    py[i] = y - lx4[i] * dsin(ang) + ly4[i] * dcos(ang);
-                }
-                num_points = 4;
-                break;
-
-            case "circle":
-                // Dynamic Ellipse: independent x/y radii via image_xscale / image_yscale.
-                var sides    = circle_sides;
-                var ang_step = 360 / sides;
-                var rx = radius * abs(image_xscale);
-                var ry = radius * abs(image_yscale);
-                px = array_create(sides);
-                py = array_create(sides);
-                for (var i = 0; i < sides; i++) {
-                    var a = i * ang_step;
-                    px[i] = x + rx * dcos(a);
-                    py[i] = y - ry * dsin(a);  // GM y+ down
-                }
-                num_points = sides;
-                break;
-
-            case "polygon":
-                // P7: points is now a native array instead of ds_list.
-                if (points == -1 || array_length(points) < 3) continue;
-                num_points = array_length(points);
-                px = array_create(num_points);
-                py = array_create(num_points);
-                var ang = image_angle;
-                for (var i = 0; i < num_points; i++) {
-                    var pt = points[i];
-                    var lx = pt[0];
-                    var ly = pt[1];
-                    px[i] = x + lx * dcos(ang) + ly * dsin(ang);
-                    py[i] = y - lx * dsin(ang) + ly * dcos(ang);
-                }
-                break;
-
-            default: continue;
-        }
-
-        // Optional front cap (self-shadow on the blocker surface)
-        if (other.use_front_caps) {
-            for (var i = 1; i < num_points - 1; i++) {
-                vertex_position_3d(_vb, px[0],     py[0],     0);
-                vertex_position_3d(_vb, px[i],     py[i],     0);
-                vertex_position_3d(_vb, px[i + 1], py[i + 1], 0);
-            }
-        }
-
-        // Edge extrusions
-        for (var i = 0; i < num_points; i++) {
-            var j = (i + 1) mod num_points;
-            Quad(_vb, px[i], py[i], px[j], py[j]);
-        }
-
-        // Reset dirty state and cache current transform for next frame.
-        _dirty = false;
-        _prev_x  = x;
-        _prev_y  = y;
-        _prev_angle  = image_angle;
-        _prev_xscale = image_xscale;
-        _prev_yscale = image_yscale;
-        _prev_width  = width;
-        _prev_height = height;
-        _prev_radius = radius;
-        _prev_cast_shadow = cast_shadow;
-    }
-
-    vertex_end(_vb);
-
-    // Freeze the buffer when static_world is enabled (zero CPU cost after first build).
-    if (static_world) {
-        vertex_freeze(_vb);
-        vb_frozen = true;
-    }
+// Handle rebuild_vb flag: force every blocker to regenerate its VB this frame
+// (used when blockers are added/removed at runtime, e.g., obj_LightingController.rebuild_vb = true).
+if (rebuild_vb) {
+    with (obj_light_block) { _dirty = true; }
     rebuild_vb = false;
+}
 
-} // end rebuild block
+// Camera extents used for frustum culling — cached once here before the per-blocker loop.
+var _vx = camera_get_view_x(view_camera[0]);
+var _vy = camera_get_view_y(view_camera[0]);
+var _vw = camera_get_view_width(view_camera[0]);
+var _vh = camera_get_view_height(view_camera[0]);
+
+// Per-blocker dirty detection + VB rebuild.
+with (obj_light_block) {
+
+    // --- P2: Auto-detect transform changes and mark dirty ---
+    if (x != _prev_x || y != _prev_y
+        || image_angle  != _prev_angle
+        || image_xscale != _prev_xscale
+        || image_yscale != _prev_yscale
+        || width  != _prev_width
+        || height != _prev_height
+        || radius != _prev_radius
+        || cast_shadow != _prev_cast_shadow) {
+        _dirty = true;
+    }
+
+    // Skip this blocker if nothing has changed and a valid VB is already built.
+    if (!_dirty && shadow_vb != -1) continue;
+
+    // In static_world mode, skip rebuilds once the initial VB has been built.
+    if (other.static_world && shadow_vb != -1) continue;
+
+    // --- Cache current transform (clears dirty for next frame) ---
+    _prev_x           = x;
+    _prev_y           = y;
+    _prev_angle       = image_angle;
+    _prev_xscale      = image_xscale;
+    _prev_yscale      = image_yscale;
+    _prev_width       = width;
+    _prev_height      = height;
+    _prev_radius      = radius;
+    _prev_cast_shadow = cast_shadow;
+    _dirty            = false;
+
+    // Tear down the existing VB before rebuilding.
+    if (shadow_vb != -1) {
+        vertex_delete_buffer(shadow_vb);
+        shadow_vb = -1;
+    }
+
+    // Non-shadow-casters keep shadow_vb = -1 (skipped in the Draw pass).
+    if (!cast_shadow) continue;
+
+    // --- Frustum cull: don't build a VB for fully off-screen blockers ---
+    // (shadow_vb stays -1; it is built automatically when the blocker becomes visible.)
+    var _bx = width  * abs(image_xscale);
+    var _by = height * abs(image_yscale);
+    var _bc = radius * max(abs(image_xscale), abs(image_yscale));
+    var _br = max(_bx, _by, _bc) + 64;
+    if (x + _br < _vx || x - _br > _vx + _vw
+        || y + _br < _vy || y - _br > _vy + _vh) continue;
+
+    // --- Compute polygon vertices for this blocker's shape ---
+    var px = [];
+    var py = [];
+    var num_points = 0;
+    var _valid = true;
+
+    switch (shape) {
+        case "rect":
+            var hw  = width  * abs(image_xscale) * 0.5;
+            var hh  = height * abs(image_yscale) * 0.5;
+            var ang = image_angle;
+            var lx4 = [-hw,  hw, hw, -hw];
+            var ly4 = [-hh, -hh, hh,  hh];
+            px = array_create(4);
+            py = array_create(4);
+            for (var i = 0; i < 4; i++) {
+                px[i] = x + lx4[i] * dcos(ang) + ly4[i] * dsin(ang);
+                py[i] = y - lx4[i] * dsin(ang) + ly4[i] * dcos(ang);
+            }
+            num_points = 4;
+            break;
+
+        case "circle":
+            var sides    = circle_sides;
+            var ang_step = 360 / sides;
+            var rx = radius * abs(image_xscale);
+            var ry = radius * abs(image_yscale);
+            px = array_create(sides);
+            py = array_create(sides);
+            for (var i = 0; i < sides; i++) {
+                var a = i * ang_step;
+                px[i] = x + rx * dcos(a);
+                py[i] = y - ry * dsin(a);  // GM y+ down
+            }
+            num_points = sides;
+            break;
+
+        case "polygon":
+            // points is a native GML array of [lx, ly] pairs (migrated from ds_list in P7).
+            if (points == -1 || array_length(points) < 3) { _valid = false; break; }
+            num_points = array_length(points);
+            px = array_create(num_points);
+            py = array_create(num_points);
+            var ang = image_angle;
+            for (var i = 0; i < num_points; i++) {
+                var pt = points[i];
+                var lx = pt[0];
+                var ly = pt[1];
+                px[i] = x + lx * dcos(ang) + ly * dsin(ang);
+                py[i] = y - lx * dsin(ang) + ly * dcos(ang);
+            }
+            break;
+
+        default: _valid = false; break;
+    }
+
+    if (!_valid) continue;
+
+    // --- Build this blocker's shadow vertex buffer ---
+    var _new_vb = vertex_create_buffer();
+    vertex_begin(_new_vb, other.vf);
+
+    // Optional front cap (self-shadow on the blocker surface).
+    if (other.use_front_caps) {
+        for (var i = 1; i < num_points - 1; i++) {
+            vertex_position_3d(_new_vb, px[0],     py[0],     0);
+            vertex_position_3d(_new_vb, px[i],     py[i],     0);
+            vertex_position_3d(_new_vb, px[i + 1], py[i + 1], 0);
+        }
+    }
+
+    // Edge extrusions.
+    for (var i = 0; i < num_points; i++) {
+        var j = (i + 1) mod num_points;
+        Quad(_new_vb, px[i], py[i], px[j], py[j]);
+    }
+
+    vertex_end(_new_vb);
+    // Always freeze: per-blocker VBs are small and rebuilt on-demand when dirty.
+    vertex_freeze(_new_vb);
+    shadow_vb = _new_vb;
+
+} // end per-blocker rebuild loop

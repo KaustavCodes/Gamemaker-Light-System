@@ -1,9 +1,7 @@
-// Vertex format and buffer
+// Vertex format (position-only — used for per-blocker shadow volumes and the depth-clear quad)
 vertex_format_begin();
 vertex_format_add_position_3d();
 vf = vertex_format_end();
-vb = vertex_create_buffer();
-vb_frozen = false;
 
 // Shader uniforms — shd_light
 u_pos         = shader_get_uniform(shd_light, "u_pos");
@@ -18,6 +16,13 @@ u_cone_angle    = shader_get_uniform(shd_light, "u_cone_angle");
 u_cone_inner_angle = shader_get_uniform(shd_light, "u_cone_inner_angle");
 u_cone_softness = shader_get_uniform(shd_light, "u_cone_softness");
 
+// Shader uniforms — shd_light (P8 normal maps)
+u_normal_map      = shader_get_sampler_index(shd_light, "u_normal_map");
+u_normal_enabled  = shader_get_uniform(shd_light, "u_normal_enabled");
+u_light_z_uni     = shader_get_uniform(shd_light, "u_light_z");
+u_view_origin_uni = shader_get_uniform(shd_light, "u_view_origin");
+u_view_size_uni   = shader_get_uniform(shd_light, "u_view_size");
+
 // Shader uniforms — shd_shadow
 u_pos2 = shader_get_uniform(shd_shadow, "u_pos");
 u_z2   = shader_get_uniform(shd_shadow, "u_z");
@@ -30,12 +35,18 @@ u_blur_weights    = shader_get_uniform(shd_blur, "u_weights");
 // Flags and scene-level settings
 rebuild_vb     = true;
 use_front_caps = true;   // true = blockers cast shadows on themselves (darker)
-static_world   = false;  // true = freeze vertex buffer after first build (zero CPU cost)
+static_world   = false;  // true = never rebuild per-blocker VBs after the initial build
 
 // Atmosphere (scene-level settings)
 ambient_color    = c_black;  // Tint of darkness; e.g., make_color_rgb(0,0,50) for night blue
 ambient_alpha    = 1.0;      // 0.0 = no darkness effect, 1.0 = full darkness
 min_illumination = 0.0;      // 0.0-1.0: minimum brightness so shadows are never fully black
+
+// Normal map (P8 — optional scene-level normal map surface for surface-orientation lighting).
+// Assign a surface that covers the current view with packed surface normals to enable
+// per-pixel Lambertian (n·l) modulation on top of the standard radial/spotlight falloff.
+// Each obj_light instance also exposes light_z (height above the 2-D plane).
+normal_map_surface = -1;  // surface_id; -1 = disabled
 
 // Soft shadows (scene-level settings)
 enable_soft_shadows = false;  // Blur-based penumbra effect over the light surface

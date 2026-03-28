@@ -57,7 +57,15 @@ var _u_direction     = u_direction;
 var _u_cone_angle    = u_cone_angle;
 var _u_cone_inner    = u_cone_inner_angle;
 var _u_cone_soft     = u_cone_softness;
-var _vb              = vb;
+
+// P8: Cache normal-map uniform handles and resolve the normal-map texture once.
+var _u_normal_enabled = u_normal_enabled;
+var _u_light_z_uni    = u_light_z_uni;
+var _u_view_origin    = u_view_origin_uni;
+var _u_view_size_u    = u_view_size_uni;
+var _u_normal_map     = u_normal_map;
+var _nm_enabled       = surface_exists(normal_map_surface);
+var _nm_tex           = _nm_enabled ? surface_get_texture(normal_map_surface) : -1;
 
 gpu_set_ztestenable(true);
 gpu_set_zwriteenable(true);
@@ -88,11 +96,38 @@ with (obj_light) {
     var _cull_r = radius * 1.5 + vw * 0.5;
     if (_dx * _dx + _dy * _dy > _cull_r * _cull_r) continue;
 
-    // Draw Shadows (masking the light using depth).
+    // --- P9: Draw Shadows — per-blocker, with light-distance culling ---
+    // Instead of submitting one monolithic buffer for every light, iterate each
+    // obj_light_block and skip those whose bounding box doesn't intersect this
+    // light's circle.  Only nearby blockers contribute GPU work for this light.
     shader_set(shd_shadow);
     shader_set_uniform_f(_u_pos2, x, y);
     shader_set_uniform_f(_u_z2, _z);
-    vertex_submit(_vb, pr_trianglelist, -1);
+
+    // Cache light properties into locals before entering the inner with() loop
+    // (self changes to obj_light_block inside the nested with).
+    var _lx = x;
+    var _ly = y;
+    var _lr = radius;
+
+    with (obj_light_block) {
+        if (!cast_shadow || shadow_vb == -1) continue;
+
+        // P9: Skip this blocker if its bounding sphere does not overlap this light's circle.
+        // _blocker_r is a conservative bounding radius: the largest scaled dimension of the
+        // blocker (rect width/height, circle radius × scale) from its pivot point.
+        // radius on obj_light_block is the circle radius; it is always initialised (defaults to
+        // sprite_width/2) so it is safe to include here regardless of shape.
+        var _bdx      = _lx - x;
+        var _bdy      = _ly - y;
+        var _blocker_r = max(width  * abs(image_xscale),
+                             height * abs(image_yscale),
+                             radius * max(abs(image_xscale), abs(image_yscale)));
+        var _cull = _lr + _blocker_r + 32;  // 32 px margin for rounding and edge extrusions
+        if (_bdx * _bdx + _bdy * _bdy > _cull * _cull) continue;
+
+        vertex_submit(shadow_vb, pr_trianglelist, -1);
+    }
 
     // Draw Additive Light (punching holes in the darkness layer).
     gpu_set_blendmode(bm_add);
@@ -111,6 +146,17 @@ with (obj_light) {
     shader_set_uniform_f(_u_cone_angle, cone_angle);
     shader_set_uniform_f(_u_cone_inner, cone_inner_angle);
     shader_set_uniform_f(_u_cone_soft, cone_softness);
+
+    // P8: Normal-map uniforms.  Only active when the controller has a valid normal_map_surface.
+    if (_nm_enabled) {
+        shader_set_uniform_f(_u_normal_enabled, 1.0);
+        shader_set_uniform_f(_u_light_z_uni, light_z);
+        shader_set_uniform_f(_u_view_origin, vx, vy);
+        shader_set_uniform_f(_u_view_size_u, vw, vh);
+        texture_set_stage(_u_normal_map, _nm_tex);
+    } else {
+        shader_set_uniform_f(_u_normal_enabled, 0.0);
+    }
 
     // P1 optimisation: clip the drawn rectangle to the light's bounding box.
     // This reduces fragment shader invocations from (W × H) to at most (2r × 2r)

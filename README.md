@@ -12,7 +12,7 @@ About the Project
     
 *   **Inspired By**: Optimized techniques like the "Ultra-Fast 2D Dynamic Lighting" method.
     
-*   **Limitations**: Best for axis-aligned or simple convex shapes; no built-in support for rotations or concave blockers.
+*   **Limitations**: Best for convex blocker shapes; no built-in support for concave blockers.
     
 
 Features
@@ -34,7 +34,11 @@ Features
 
 *   Automatic surface resize handling (window resize, fullscreen toggle).
 
-*   Dirty-flag vertex buffer rebuild — only recomputes shadow geometry when blockers actually move.
+*   Dirty-flag per-blocker vertex buffer rebuild — only recomputes shadow geometry for blockers that actually move.
+
+*   **Normal map support (P8)** — Assign a scene normal-map surface to the controller for Lambertian (n·l) shading that transforms flat sprites into pseudo-3D lit surfaces.
+
+*   **Per-light shadow culling (P9)** — Each blocker owns a frozen per-instance vertex buffer; the shadow pass only submits geometry for blockers within each light's radius, dramatically reducing GPU work in scenes with many lights and blockers.
     
 
 Prerequisites
@@ -124,6 +128,14 @@ Customization Tips
 *   **Attenuation Curve**: Set attenuation\_exponent on an obj\_light instance. 1.0 = linear (gentle), 2.0 = quadratic (default), 3.0 = cubic (concentrated). Any positive value works.
 
 *   **Polygon Blockers**: Use scr\_path\_to\_polygon() to convert a Path asset into a native array of points, then assign to obj\_light\_block.points.
+
+*   **Normal Maps (P8)**: Create a surface the size of your view, render scene normal sprites into it each frame (R=X, G=Y, B=Z encoded in [0,1]; flat surface = RGB 128,128,255), then assign:
+    ```gml
+    obj_LightingController.normal_map_surface = my_normal_surface;
+    ```
+    Adjust light height above the plane with `my_light.light_z` (default 200).
+
+*   **Per-Light Shadow Culling (P9)**: Enabled automatically — each blocker maintains its own frozen vertex buffer and the shadow pass skips blockers outside each light's radius.  No configuration needed.
     
 
 Troubleshooting
