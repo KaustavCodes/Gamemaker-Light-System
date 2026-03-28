@@ -7,7 +7,7 @@ uniform float u_attenuation;         // Falloff exponent: 1.0=linear, 2.0=quadra
 uniform float u_light_type;        // 0.0 = point (360°), 1.0 = spotlight cone
 uniform vec2  u_direction;         // Normalised direction vector for spotlight
 uniform float u_cone_angle;        // Spotlight outer half-angle in degrees
-uniform float u_cone_inner_angle;  // Flat-top source width in pixels (0 = pointy tip)
+uniform float u_spot_light_emiter_width;  // Flat-top source width in pixels (0 = pointy tip)
 uniform float u_cone_softness;     // Edge softness 0..1 (0 = full gradient, 1 = hard flat cut)
 
 // P8 — Normal-map surface lighting (optional).
@@ -36,11 +36,11 @@ void main() {
         vec2  perp_dir = vec2(-dir_norm.y, dir_norm.x);  // perpendicular to beam direction
 
         // ---- Flat-top source segment ----
-        // The virtual source is a line segment of half-width (u_cone_inner_angle / 2) pixels,
+        // The virtual source is a line segment of half-width (u_spot_light_emiter_width / 2) pixels,
         // centred at u_pos and oriented perpendicular to the beam.
-        // u_cone_inner_angle == 0  →  single-point tip (classic pointy spotlight).
-        // u_cone_inner_angle == 200 →  200 px wide flat origin (trapezoidal beam).
-        float half_src_w = u_cone_inner_angle * 0.5;
+        // u_spot_light_emiter_width == 0  →  single-point tip (classic pointy spotlight).
+        // u_spot_light_emiter_width == 200 →  200 px wide flat origin (trapezoidal beam).
+        float half_src_w = u_spot_light_emiter_width * 0.5;
         float across     = dot(dis, perp_dir);
         float clamped    = clamp(across, -half_src_w, half_src_w);
 

@@ -55,7 +55,7 @@ var _u_attenuation   = u_attenuation;
 var _u_light_type    = u_light_type;
 var _u_direction     = u_direction;
 var _u_cone_angle    = u_cone_angle;
-var _u_cone_inner    = u_cone_inner_angle;
+var _u_spot_emiter_width = u_spot_light_emiter_width;
 var _u_cone_soft     = u_cone_softness;
 
 // P8: Cache normal-map uniform handles and resolve the normal-map texture once.
@@ -144,14 +144,14 @@ with (obj_light) {
     shader_set_uniform_f(_u_radius, radius);
     shader_set_uniform_f(_u_intensity, intensity);
     shader_set_uniform_f(_u_attenuation, attenuation_exponent);
-    shader_set_uniform_f(_u_color, color_get_red(my_color) / 255.0,
-                                    color_get_green(my_color) / 255.0,
-                                    color_get_blue(my_color) / 255.0);
+    shader_set_uniform_f(_u_color, color_get_red(light_color) / 255.0,
+                                    color_get_green(light_color) / 255.0,
+                                    color_get_blue(light_color) / 255.0);
     // Per-instance spotlight uniforms.
     shader_set_uniform_f(_u_light_type, light_type == "spot" ? 1.0 : 0.0);
     shader_set_uniform_f(_u_direction, dcos(light_direction), -dsin(light_direction));
     shader_set_uniform_f(_u_cone_angle, cone_angle);
-    shader_set_uniform_f(_u_cone_inner, cone_inner_angle);
+    shader_set_uniform_f(_u_spot_emiter_width, spot_light_emiter_width);
     shader_set_uniform_f(_u_cone_soft, cone_softness);
 
     // P8: Normal-map uniforms.  Only active when the controller has a valid normal_map_surface.

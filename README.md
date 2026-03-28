@@ -154,7 +154,7 @@ Place instances of `obj_light`. No sprite is needed — the light is rendered en
 
 ```gml
 // Creation Code on an obj_light instance
-my_color  = make_color_rgb(255, 200, 100);  // warm lantern colour
+light_color  = make_color_rgb(255, 200, 100);  // warm lantern colour
 radius    = 300;                             // illumination radius in pixels
 intensity = 1.0;                             // brightness multiplier
 attenuation_exponent = 2.0;                  // 1 = linear, 2 = quadratic (default), 3 = cubic
@@ -196,14 +196,14 @@ Variable Reference
 | Variable | Default | Description |
 |---|---|---|
 | `active` | `true` | `false` = this light is skipped entirely (no shadow pass, no draw). Light state is preserved. |
-| `my_color` | `c_white` | Light colour. Use `make_color_rgb()` for custom colours. |
+| `light_color` | `c_white` | Light colour. Use `make_color_rgb()` for custom colours. |
 | `radius` | *(room var)* | Illumination radius in pixels. Controls both the visual falloff and the culling bounds. |
 | `intensity` | `0.9` | Brightness multiplier. `1.0` = full, `0.5` = dim, `>1` = overbright. |
 | `attenuation_exponent` | `2.0` | Falloff curve. `1.0` linear (wide glow), `2.0` quadratic (natural), `3.0` cubic (concentrated). |
 | `light_type` | `"point"` | `"point"` for 360° radial, `"spot"` for a directional cone. |
 | `light_direction` | `0` | Spotlight aim in degrees. `0` = right, `90` = down (GM coordinate system). |
 | `cone_angle` | `45` | Spotlight outer half-angle in degrees. Total cone arc = `cone_angle * 2`. |
-| `cone_inner_angle` | `0` | Flat-top beam-origin width in **pixels**. `0` = pointy tip; e.g., `200` = 200 px wide origin. |
+| `spot_light_emiter_width` | `0` | Flat-top beam-origin width in **pixels**. `0` = pointy tip; e.g., `200` = 200 px wide origin. |
 | `cone_softness` | `0.7` | Edge softness `0`–`1`. `0` = full angular gradient; `1` = hard cutoff at cone edge. |
 | `light_z` | `200.0` | Height above the 2-D plane for normal-map calculations. Larger = shallower lighting angle. |
 | `base_intensity` | `0.9` | Reference intensity used by flicker. |
@@ -241,14 +241,14 @@ Turn any `obj_light` instance into a spotlight by setting `light_type = "spot"` 
 light_type      = "spot";
 light_direction = 45;      // aim 45° (down-right)
 cone_angle      = 30;      // 30° half-angle → 60° total beam
-cone_inner_angle = 0;      // pointy tip (set >0 for a trapezoidal flashlight beam)
+spot_light_emiter_width = 0;      // pointy tip (set >0 for a trapezoidal flashlight beam)
 cone_softness   = 0.6;     // 60% of cone is uniformly bright, 40% fades at edges
 
 // Rotate the spotlight with the player each step:
 light_direction = point_direction(x, y, obj_player.x, obj_player.y);
 ```
 
-Set `cone_inner_angle` to a pixel width (e.g., `150`) to create a flashlight beam with a flat origin — useful for wall-mounted lights or wide lanterns.
+Set `spot_light_emiter_width` to a pixel width (e.g., `150`) to create a flashlight beam with a flat origin — useful for wall-mounted lights or wide lanterns.
 
 ### Flicker and Wobble
 
@@ -502,7 +502,7 @@ if (my_light.intensity < 0.01) {
 ```gml
 // In the projectile's Create event
 my_fire_light = instance_create_layer(x, y, "Lighting", obj_light);
-my_fire_light.my_color = make_color_rgb(255, 120, 30);
+my_fire_light.light_color = make_color_rgb(255, 120, 30);
 my_fire_light.radius   = 180;
 my_fire_light.intensity = 1.2;
 my_fire_light.attenuation_exponent = 2.5;

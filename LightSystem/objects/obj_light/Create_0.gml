@@ -1,5 +1,5 @@
 // Customizable per light instance
-//my_color   = c_orange;    // e.g., c_red, make_color_rgb(255, 165, 0)
+//light_color      = c_orange;    // e.g., c_red, make_color_rgb(255, 165, 0)
 //radius     = 350;         // Spread amount (pixels from center)
 //intensity  = 1.0;         // 0.5 = dimmer, 2.0 = brighter
 
@@ -19,7 +19,7 @@ attenuation_exponent = 2.0;
 //light_type       = "point";  // "point" = 360° radial  |  "spot" = directional cone
 //light_direction  = 0;        // Spotlight aim in degrees (0 = right, 90 = down in GM coords)
 //cone_angle       = 45;       // Spotlight outer half-angle in degrees (total arc = cone_angle*2)
-//cone_inner_angle = 0;        // Flat-top beam-origin width in PIXELS. 0 = pointy single-point tip.
+//spot_light_emiter_width = 0;        // Flat-top beam-origin width in PIXELS. 0 = pointy single-point tip.
                               //   e.g. 200 = 200 px wide flat origin (trapezoidal beam shape).
 //cone_softness    = 0.7;      // Edge softness 0..1. 0 = full angular gradient from centre.
                               //   0.7 = 70% of cone is uniformly bright; 1.0 = hard cut at edge.
