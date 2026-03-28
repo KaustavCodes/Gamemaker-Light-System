@@ -13,7 +13,7 @@ u_attenuation = shader_get_uniform(shd_light, "u_attenuation");
 u_light_type  = shader_get_uniform(shd_light, "u_light_type");
 u_direction   = shader_get_uniform(shd_light, "u_direction");
 u_cone_angle    = shader_get_uniform(shd_light, "u_cone_angle");
-u_cone_inner_angle = shader_get_uniform(shd_light, "u_cone_inner_angle");
+u_spot_light_emiter_width = shader_get_uniform(shd_light, "u_spot_light_emiter_width");
 u_cone_softness = shader_get_uniform(shd_light, "u_cone_softness");
 
 // Shader uniforms — shd_light (P8 normal maps)

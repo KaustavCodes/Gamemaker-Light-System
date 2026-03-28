@@ -27,7 +27,7 @@
   "physicsShapePoints":[],
   "physicsStartAwake":true,
   "properties":[
-    {"$GMObjectProperty":"v2","%Name":"my_color","filters":[],"listItems":[],"multiselect":false,"name":"my_color","rangeEnabled":false,"rangeMax":10.0,"rangeMin":0.0,"resourceType":"GMObjectProperty","resourceVersion":"2.0","value":"$FF0AB1FF","varType":7,},
+    {"$GMObjectProperty":"v2","%Name":"light_color","filters":[],"listItems":[],"multiselect":false,"name":"light_color","rangeEnabled":false,"rangeMax":10.0,"rangeMin":0.0,"resourceType":"GMObjectProperty","resourceVersion":"2.0","value":"$FF0AB1FF","varType":7,},
     {"$GMObjectProperty":"v2","%Name":"radius","filters":[],"listItems":[],"multiselect":false,"name":"radius","rangeEnabled":false,"rangeMax":10.0,"rangeMin":0.0,"resourceType":"GMObjectProperty","resourceVersion":"2.0","value":"350","varType":0,},
     {"$GMObjectProperty":"v2","%Name":"intensity","filters":[],"listItems":[],"multiselect":false,"name":"intensity","rangeEnabled":true,"rangeMax":3.0,"rangeMin":0.5,"resourceType":"GMObjectProperty","resourceVersion":"2.0","value":"1","varType":0,},
     {"$GMObjectProperty":"v2","%Name":"flicker_enabled","filters":[],"listItems":[],"multiselect":false,"name":"flicker_enabled","rangeEnabled":false,"rangeMax":10.0,"rangeMin":0.0,"resourceType":"GMObjectProperty","resourceVersion":"2.0","value":"True","varType":3,},
@@ -38,7 +38,7 @@
     {"$GMObjectProperty":"v2","%Name":"light_direction","filters":[],"listItems":[],"multiselect":false,"name":"light_direction","rangeEnabled":false,"rangeMax":360.0,"rangeMin":0.0,"resourceType":"GMObjectProperty","resourceVersion":"2.0","value":"0","varType":1,},
     {"$GMObjectProperty":"v2","%Name":"cone_angle","filters":[],"listItems":[],"multiselect":false,"name":"cone_angle","rangeEnabled":false,"rangeMax":360.0,"rangeMin":0.0,"resourceType":"GMObjectProperty","resourceVersion":"2.0","value":"45","varType":1,},
     {"$GMObjectProperty":"v2","%Name":"cone_softness","filters":[],"listItems":[],"multiselect":false,"name":"cone_softness","rangeEnabled":false,"rangeMax":1.0,"rangeMin":0.0,"resourceType":"GMObjectProperty","resourceVersion":"2.0","value":"0.7","varType":0,},
-    {"$GMObjectProperty":"v2","%Name":"cone_inner_angle","filters":[],"listItems":[],"multiselect":false,"name":"cone_inner_angle","rangeEnabled":false,"rangeMax":500.0,"rangeMin":0.0,"resourceType":"GMObjectProperty","resourceVersion":"2.0","value":"0","varType":0,},
+    {"$GMObjectProperty":"v2","%Name":"spot_light_emiter_width","filters":[],"listItems":[],"multiselect":false,"name":"spot_light_emiter_width","rangeEnabled":false,"rangeMax":500.0,"rangeMin":0.0,"resourceType":"GMObjectProperty","resourceVersion":"2.0","value":"0","varType":0,},
   ],
   "resourceType":"GMObject",
   "resourceVersion":"2.0",
