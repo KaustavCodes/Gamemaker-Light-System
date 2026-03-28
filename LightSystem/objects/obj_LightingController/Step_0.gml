@@ -8,6 +8,27 @@ if (!static_world || rebuild_vb) {
     var vw = camera_get_view_width(view_camera[0]);
     var vh = camera_get_view_height(view_camera[0]);
 
+    // --- P2: Dirty-flag check ------------------------------------------------
+    // Only rebuild the vertex buffer when at least one blocker's transform has
+    // changed since the last frame (or when an external rebuild_vb flag is set).
+    var _any_dirty = rebuild_vb;  // honour manual rebuild requests
+    with (obj_light_block) {
+        if (x != _prev_x || y != _prev_y
+            || image_angle  != _prev_angle
+            || image_xscale != _prev_xscale
+            || image_yscale != _prev_yscale
+            || width  != _prev_width
+            || height != _prev_height
+            || radius != _prev_radius
+            || cast_shadow != _prev_cast_shadow) {
+            _dirty = true;
+        }
+        if (_dirty) { _any_dirty = true; }
+    }
+
+    if (!_any_dirty) exit;  // nothing changed — skip the entire rebuild
+    // -------------------------------------------------------------------------
+
     // If the buffer was frozen (static_world was true) but we now need to rebuild,
     // delete and recreate it so vertex_begin() can write to it again.
     if (vb_frozen) {
@@ -66,14 +87,14 @@ if (!static_world || rebuild_vb) {
                 break;
 
             case "polygon":
-                // Local-to-World: points are relative to origin (0,0); rotated by image_angle.
-                if (points == -1 || ds_list_size(points) < 3) continue;
-                num_points = ds_list_size(points);
+                // P7: points is now a native array instead of ds_list.
+                if (points == -1 || array_length(points) < 3) continue;
+                num_points = array_length(points);
                 px = array_create(num_points);
                 py = array_create(num_points);
                 var ang = image_angle;
                 for (var i = 0; i < num_points; i++) {
-                    var pt = points[| i];
+                    var pt = points[i];
                     var lx = pt[0];
                     var ly = pt[1];
                     px[i] = x + lx * dcos(ang) + ly * dsin(ang);
@@ -98,6 +119,18 @@ if (!static_world || rebuild_vb) {
             var j = (i + 1) mod num_points;
             Quad(_vb, px[i], py[i], px[j], py[j]);
         }
+
+        // Reset dirty state and cache current transform for next frame.
+        _dirty = false;
+        _prev_x  = x;
+        _prev_y  = y;
+        _prev_angle  = image_angle;
+        _prev_xscale = image_xscale;
+        _prev_yscale = image_yscale;
+        _prev_width  = width;
+        _prev_height = height;
+        _prev_radius = radius;
+        _prev_cast_shadow = cast_shadow;
     }
 
     vertex_end(_vb);

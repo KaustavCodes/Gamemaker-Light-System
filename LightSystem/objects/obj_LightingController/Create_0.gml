@@ -11,6 +11,7 @@ u_z           = shader_get_uniform(shd_light, "u_z");
 u_color       = shader_get_uniform(shd_light, "u_color");
 u_radius      = shader_get_uniform(shd_light, "u_radius");
 u_intensity   = shader_get_uniform(shd_light, "u_intensity");
+u_attenuation = shader_get_uniform(shd_light, "u_attenuation");
 u_light_type  = shader_get_uniform(shd_light, "u_light_type");
 u_direction   = shader_get_uniform(shd_light, "u_direction");
 u_cone_angle    = shader_get_uniform(shd_light, "u_cone_angle");
@@ -24,7 +25,7 @@ u_z2   = shader_get_uniform(shd_shadow, "u_z");
 // Shader uniforms — shd_blur
 u_blur_texel_size = shader_get_uniform(shd_blur, "u_texel_size");
 u_blur_horizontal = shader_get_uniform(shd_blur, "u_horizontal");
-u_blur_radius_uni = shader_get_uniform(shd_blur, "u_blur_radius");
+u_blur_weights    = shader_get_uniform(shd_blur, "u_weights");
 
 // Flags and scene-level settings
 rebuild_vb     = true;
@@ -60,3 +61,9 @@ vertex_position_3d(depth_clear_vb,  _r,  _r, 0);
 vertex_position_3d(depth_clear_vb, -_r,  _r, 0);
 vertex_end(depth_clear_vb);
 vertex_freeze(depth_clear_vb);
+
+// --- P3: Precomputed Gaussian blur kernel weights ---
+// Computed once here and recalculated whenever soft_shadow_radius changes.
+// Passed to the shader as a uniform, removing all exp() calls from the fragment shader.
+_cached_blur_radius = -1;  // sentinel: forces first computation
+blur_weights = array_create(5, 0.0);

@@ -27,6 +27,14 @@ Features
 *   Light culling for optimization.
     
 *   Extensible for effects like flickering.
+
+*   Per-light adjustable attenuation curve (linear, quadratic, cubic, or custom exponent).
+
+*   Soft shadow blur with precomputed Gaussian kernel (no GPU-side `exp()` overhead).
+
+*   Automatic surface resize handling (window resize, fullscreen toggle).
+
+*   Dirty-flag vertex buffer rebuild — only recomputes shadow geometry when blockers actually move.
     
 
 Prerequisites
@@ -111,7 +119,11 @@ Customization Tips
     
 *   **Flickering Light**: In obj\_light Step: intensity = 1.0 + 0.2 \* sin(current\_time \* 0.01);.
     
-*   **Performance**: For static scenes, uncomment vertex\_freeze(vb); in Step event.
+*   **Performance**: For static scenes, set static\_world = true; in the controller to freeze shadow geometry (zero CPU cost).
+
+*   **Attenuation Curve**: Set attenuation\_exponent on an obj\_light instance. 1.0 = linear (gentle), 2.0 = quadratic (default), 3.0 = cubic (concentrated). Any positive value works.
+
+*   **Polygon Blockers**: Use scr\_path\_to\_polygon() to convert a Path asset into a native array of points, then assign to obj\_light\_block.points.
     
 
 Troubleshooting

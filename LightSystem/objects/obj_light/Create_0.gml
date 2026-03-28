@@ -3,6 +3,11 @@
 //radius     = 350;         // Spread amount (pixels from center)
 //intensity  = 1.0;         // 0.5 = dimmer, 2.0 = brighter
 
+// Attenuation curve — controls how light intensity falls off with distance.
+// 1.0 = linear (gentle, wide spread), 2.0 = quadratic (default, natural),
+// 3.0 = cubic (sharp, concentrated).  Any positive value is valid.
+attenuation_exponent = 2.0;
+
 // Spotlight settings — all per-instance, safe defaults let point lights work without changes.
 // Override any of these on a specific instance to turn it into a spotlight.
 //light_type       = "point";  // "point" = 360° radial  |  "spot" = directional cone

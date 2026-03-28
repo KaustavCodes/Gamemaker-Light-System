@@ -1,1 +1,1 @@
-if (points != -1) ds_list_destroy(points);
+// points is now a native array — no cleanup needed (GC handles it).
