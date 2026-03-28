@@ -67,7 +67,7 @@ Features
 - Global ambient darkness, colour tint, and minimum-illumination floor.
 - **Exact AABB-circle viewport culling** — lights whose circle doesn't touch the camera rectangle are skipped entirely every frame. Works correctly for any viewport aspect ratio.
 - **Per-light `active` flag** — instantly disable/re-enable any light without destroying it.
-- Spotlights (directional cone) with inner angle, cone softness, and trapezoidal beam shape.
+- Spotlights (directional cone) with emitter width, cone softness, and trapezoidal beam shape.
 - Per-light adjustable attenuation curve (linear → quadratic → cubic, any positive exponent).
 - Built-in flicker and positional wobble simulation.
 - Smooth intensity and radius easing via `lerp` (fade in/out, pulsing).
