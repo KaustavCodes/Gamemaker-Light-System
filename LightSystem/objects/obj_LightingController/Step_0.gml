@@ -92,8 +92,9 @@ with (obj_light_block) {
             var _sx   = abs(image_xscale);
             var _sy   = abs(image_yscale);
             var ang   = image_angle;
-            var lx4   = [-_xoff * _sx,         (width - _xoff) * _sx, (width - _xoff) * _sx, -_xoff * _sx];
-            var ly4   = [-_yoff * _sy,         -_yoff * _sy,           (height - _yoff) * _sy, (height - _yoff) * _sy];
+            //          [top-left]                [top-right]              [bottom-right]             [bottom-left]
+            var lx4 = [-_xoff * _sx,         (width - _xoff) * _sx,  (width - _xoff) * _sx,  -_xoff * _sx];
+            var ly4 = [-_yoff * _sy,         -_yoff * _sy,            (height - _yoff) * _sy,  (height - _yoff) * _sy];
             px = array_create(4);
             py = array_create(4);
             for (var i = 0; i < 4; i++) {
@@ -114,6 +115,10 @@ with (obj_light_block) {
             var rx = radius * abs(image_xscale);
             var ry = radius * abs(image_yscale);
             // Local-space offset from pivot to sprite visual centre (before rotation).
+            // The circle is assumed to be centred on the sprite's visual midpoint (width/2,
+            // height/2 in sprite-local pixels).  Subtracting the origin offset gives the
+            // displacement from the pivot (x,y) to that visual centre in local space, which
+            // is then scaled and rotated to produce the world-space circle centre.
             var _lcx = (width  * 0.5 - _xoff) * abs(image_xscale);
             var _lcy = (height * 0.5 - _yoff) * abs(image_yscale);
             // Rotate centre offset around the pivot and translate to world space.
