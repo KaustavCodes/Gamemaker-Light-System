@@ -113,10 +113,12 @@ with (obj_light_block) {
             px = array_create(num_points);
             py = array_create(num_points);
             var ang = image_angle;
+            var _sx = abs(image_xscale);
+            var _sy = abs(image_yscale);
             for (var i = 0; i < num_points; i++) {
                 var pt = points[i];
-                var lx = pt[0];
-                var ly = pt[1];
+                var lx = pt[0] * _sx;  // apply scale before rotation
+                var ly = pt[1] * _sy;
                 px[i] = x + lx * dcos(ang) + ly * dsin(ang);
                 py[i] = y - lx * dsin(ang) + ly * dcos(ang);
             }
