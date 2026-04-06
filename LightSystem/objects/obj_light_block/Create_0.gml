@@ -3,12 +3,14 @@ cast_shadow = true; // Toggle shadow casting on/off for this blocker (instance s
 
 // Rect-specific (auto-set from sprite; override manually if needed)
 // Rotation and scale are read from the built-in image_angle, image_xscale, image_yscale vars.
-width  = sprite_width;
-height = sprite_height;
+// Use sprite_get_width/height (unscaled) so that the Step VB builder can apply
+// image_xscale / image_yscale itself without double-counting.
+width  = sprite_get_width(sprite_index);
+height = sprite_get_height(sprite_index);
 
 // Circle-specific
 // Ellipse scaling is driven by image_xscale / image_yscale (stretch to oval automatically).
-radius       = sprite_width / 2;
+radius       = sprite_get_width(sprite_index) / 2;
 circle_sides = 16;  // Tessellation quality: 8=blocky, 16=default, 32=smooth (instance setting)
 
 // Polygon-specific: array of [lx, ly] local-coordinate arrays, relative to origin (0,0).
