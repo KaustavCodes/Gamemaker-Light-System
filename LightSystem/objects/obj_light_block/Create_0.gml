@@ -21,12 +21,17 @@ points = -1;
 
 image_alpha = 0;
 
+// Opacity: 0.0 = light passes through completely, 1.0 = fully blocks light (default).
+// Values in between let a proportional fraction of each light through the blocker's footprint.
+block_opacity = 1.0;
+
 // P9: Per-blocker shadow vertex buffer.
 // The controller builds and freezes this VB the first time the blocker is processed and
 // rebuilds it whenever the blocker's transform changes (dirty-flagged).  The shadow pass
 // in Draw_0.gml submits only the VBs for blockers within each light's radius, eliminating
 // the cost of submitting distant blockers for every light.
 shadow_vb = -1;  // vertex_buffer_id; -1 = not yet built
+fill_vb   = -1;  // flat polygon VB used for partial-opacity light pass; -1 = not built
 
 // Dirty tracking: the controller rebuilds this blocker's shadow_vb when the flag is set.
 // Previous-frame values are stored here for automatic change detection.
@@ -40,3 +45,4 @@ _prev_width  = width;
 _prev_height = height;
 _prev_radius = radius;
 _prev_cast_shadow = cast_shadow;
+_prev_block_opacity = block_opacity;

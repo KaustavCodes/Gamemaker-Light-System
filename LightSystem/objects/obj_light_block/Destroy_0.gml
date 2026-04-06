@@ -4,3 +4,7 @@ if (shadow_vb != -1) {
     vertex_delete_buffer(shadow_vb);
     shadow_vb = -1;
 }
+if (fill_vb != -1) {
+    vertex_delete_buffer(fill_vb);
+    fill_vb = -1;
+}
