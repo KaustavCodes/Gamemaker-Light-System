@@ -29,7 +29,8 @@ with (obj_light_block) {
         || width  != _prev_width
         || height != _prev_height
         || radius != _prev_radius
-        || cast_shadow != _prev_cast_shadow) {
+        || cast_shadow != _prev_cast_shadow
+        || block_opacity != _prev_block_opacity) {
         _dirty = true;
     }
 
@@ -47,14 +48,19 @@ with (obj_light_block) {
     _prev_yscale      = image_yscale;
     _prev_width       = width;
     _prev_height      = height;
-    _prev_radius      = radius;
-    _prev_cast_shadow = cast_shadow;
-    _dirty            = false;
+    _prev_radius        = radius;
+    _prev_cast_shadow   = cast_shadow;
+    _prev_block_opacity = block_opacity;
+    _dirty              = false;
 
     // Tear down the existing VB before rebuilding.
     if (shadow_vb != -1) {
         vertex_delete_buffer(shadow_vb);
         shadow_vb = -1;
+    }
+    if (fill_vb != -1) {
+        vertex_delete_buffer(fill_vb);
+        fill_vb = -1;
     }
 
     // Non-shadow-casters keep shadow_vb = -1 (skipped in the Draw pass).
@@ -77,11 +83,17 @@ with (obj_light_block) {
 
     switch (shape) {
         case "rect":
-            var hw  = width  * abs(image_xscale) * 0.5;
-            var hh  = height * abs(image_yscale) * 0.5;
-            var ang = image_angle;
-            var lx4 = [-hw,  hw, hw, -hw];
-            var ly4 = [-hh, -hh, hh,  hh];
+            // Use the sprite's origin offset so the shadow polygon matches the room-editor
+            // placement exactly (WYSIWYG).  sprite_get_xoffset/yoffset returns the pixel
+            // position of the origin within the sprite; corners are expressed relative to
+            // that pivot before rotation and scale are applied.
+            var _xoff = sprite_get_xoffset(sprite_index);
+            var _yoff = sprite_get_yoffset(sprite_index);
+            var _sx   = abs(image_xscale);
+            var _sy   = abs(image_yscale);
+            var ang   = image_angle;
+            var lx4   = [-_xoff * _sx,         (width - _xoff) * _sx, (width - _xoff) * _sx, -_xoff * _sx];
+            var ly4   = [-_yoff * _sy,         -_yoff * _sy,           (height - _yoff) * _sy, (height - _yoff) * _sy];
             px = array_create(4);
             py = array_create(4);
             for (var i = 0; i < 4; i++) {
@@ -92,16 +104,27 @@ with (obj_light_block) {
             break;
 
         case "circle":
+            // Offset the circle centre to the visual centre of the sprite so that the
+            // shadow matches the room-editor placement regardless of sprite origin.
+            var _xoff    = sprite_get_xoffset(sprite_index);
+            var _yoff    = sprite_get_yoffset(sprite_index);
+            var ang      = image_angle;
             var sides    = circle_sides;
             var ang_step = 360 / sides;
             var rx = radius * abs(image_xscale);
             var ry = radius * abs(image_yscale);
+            // Local-space offset from pivot to sprite visual centre (before rotation).
+            var _lcx = (width  * 0.5 - _xoff) * abs(image_xscale);
+            var _lcy = (height * 0.5 - _yoff) * abs(image_yscale);
+            // Rotate centre offset around the pivot and translate to world space.
+            var _wcx = x + _lcx * dcos(ang) + _lcy * dsin(ang);
+            var _wcy = y - _lcx * dsin(ang) + _lcy * dcos(ang);
             px = array_create(sides);
             py = array_create(sides);
             for (var i = 0; i < sides; i++) {
                 var a = i * ang_step;
-                px[i] = x + rx * dcos(a);
-                py[i] = y - ry * dsin(a);  // GM y+ down
+                px[i] = _wcx + rx * dcos(a);
+                py[i] = _wcy - ry * dsin(a);  // GM y+ down
             }
             num_points = sides;
             break;
@@ -152,5 +175,22 @@ with (obj_light_block) {
     // Always freeze: per-blocker VBs are small and rebuilt on-demand when dirty.
     vertex_freeze(_new_vb);
     shadow_vb = _new_vb;
+
+    // --- Build flat fill polygon VB for partial-opacity blocker pass ---
+    // When block_opacity < 1.0 the Draw pass injects (1-opacity) of each light back
+    // into the blocked footprint via an additional shd_light call.  The fill VB is a
+    // simple fan triangulation of the same polygon (z = 0, no extrusion needed).
+    if (block_opacity < 1.0) {
+        var _fvb = vertex_create_buffer();
+        vertex_begin(_fvb, other.vf);
+        for (var i = 1; i < num_points - 1; i++) {
+            vertex_position_3d(_fvb, px[0],     py[0],     0);
+            vertex_position_3d(_fvb, px[i],     py[i],     0);
+            vertex_position_3d(_fvb, px[i + 1], py[i + 1], 0);
+        }
+        vertex_end(_fvb);
+        vertex_freeze(_fvb);
+        fill_vb = _fvb;
+    }
 
 } // end per-blocker rebuild loop

@@ -173,6 +173,30 @@ with (obj_light) {
     var _lx2 = min(vx + vw,  x + radius);
     var _ly2 = min(vy + vh,  y + radius);
     draw_rectangle(_lx1, _ly1, _lx2, _ly2, false);
+
+    // --- Partial-opacity fill pass ---
+    // For each blocker with 0 < block_opacity < 1.0 the shadow VB fully blocks the
+    // light, but we then draw the blocker's flat fill polygon (fill_vb) through the
+    // same shd_light shader — depth test disabled — at (1 - block_opacity) of the
+    // light's intensity.  This injects the correct fraction of light back into the
+    // blocker's footprint, simulating a semi-transparent material.
+    var _li = intensity;  // cache before self changes inside nested with()
+    gpu_set_ztestenable(false);
+    with (obj_light_block) {
+        if (!cast_shadow || fill_vb == -1 || block_opacity >= 1.0) continue;
+        var _bdx = _lx - x;
+        var _bdy = _ly - y;
+        var _blocker_r = max(width  * abs(image_xscale),
+                             height * abs(image_yscale),
+                             radius * max(abs(image_xscale), abs(image_yscale)));
+        var _cull = _lr + _blocker_r + 32;
+        if (_bdx * _bdx + _bdy * _bdy > _cull * _cull) continue;
+        shader_set_uniform_f(_u_intensity, _li * (1.0 - block_opacity));
+        vertex_submit(fill_vb, pr_trianglelist, -1);
+    }
+    shader_set_uniform_f(_u_intensity, _li);  // restore for next light (self = obj_light)
+    gpu_set_ztestenable(true);
+
     gpu_set_blendmode(bm_normal);
 
     _z--;
