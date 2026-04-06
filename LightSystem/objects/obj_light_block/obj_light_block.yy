@@ -32,6 +32,7 @@
         "\"circle\"",
         "\"polygon\"",
       ],"multiselect":false,"name":"shape","rangeEnabled":false,"rangeMax":10.0,"rangeMin":0.0,"resourceType":"GMObjectProperty","resourceVersion":"2.0","value":"\"rect\"","varType":6,},
+    {"$GMObjectProperty":"v2","%Name":"block_opacity","filters":[],"listItems":[],"multiselect":false,"name":"block_opacity","rangeEnabled":false,"rangeMax":1.0,"rangeMin":0.0,"resourceType":"GMObjectProperty","resourceVersion":"2.0","value":"1.0","varType":0,},
   ],
   "resourceType":"GMObject",
   "resourceVersion":"2.0",

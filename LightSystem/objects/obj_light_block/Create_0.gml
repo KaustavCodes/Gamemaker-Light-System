@@ -23,7 +23,7 @@ image_alpha = 0;
 
 // Opacity: 0.0 = light passes through completely, 1.0 = fully blocks light (default).
 // Values in between let a proportional fraction of each light through the blocker's footprint.
-block_opacity = 1.0;
+//block_opacity = 1.0;
 
 // P9: Per-blocker shadow vertex buffer.
 // The controller builds and freezes this VB the first time the blocker is processed and
