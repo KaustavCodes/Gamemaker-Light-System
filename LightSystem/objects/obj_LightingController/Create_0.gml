@@ -38,9 +38,9 @@ use_front_caps = true;   // true = blockers cast shadows on themselves (darker)
 static_world   = false;  // true = never rebuild per-blocker VBs after the initial build
 
 // Atmosphere (scene-level settings)
-ambient_color    = c_black;  // Tint of darkness; e.g., make_color_rgb(0,0,50) for night blue
-ambient_alpha    = 1.0;      // 0.0 = no darkness effect, 1.0 = full darkness
-min_illumination = 0.0;      // 0.0-1.0: minimum brightness so shadows are never fully black
+//ambient_color    = c_black;  // Tint of darkness; e.g., make_color_rgb(0,0,50) for night blue
+//ambient_alpha    = 1.0;      // 0.0 = no darkness effect, 1.0 = full darkness
+//min_illumination = 0.0;      // 0.0-1.0: minimum brightness so shadows are never fully black
 
 // Normal map (P8 — optional scene-level normal map surface for surface-orientation lighting).
 // Assign a surface that covers the current view with packed surface normals to enable
